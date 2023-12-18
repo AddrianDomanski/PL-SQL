@@ -1,0 +1,127 @@
+-- CREATING HOTEL DATABASE
+
+CREATE TABLE SERVICE(
+code char(4) constraint pk_service primary key,
+ description varchar2(30),
+ price number(5,2));
+
+--already created in P4_View_Priviledges
+--CREATE TABLE CUSTOMER(
+--nif char(9) constraint pk_customer primary key,
+--CustomerName varchar2(40) not null,
+--phone  char(11) not null,
+--town varchar2(40),
+--province varchar2(30),
+--country varchar2(30));
+
+CREATE TABLE BOOKING(
+code number(6) constraint pk_booking primary key,
+customer char(9) references CUSTOMER);
+
+CREATE TABLE BOOKINGCALENDAR(
+room number(3) constraint fk_bookingCalendar_room references ROOM,
+bookingDate date constraint fk_bookingCalendar_calendar references CALENDAR,
+supBed char(2),
+booking number(6) constraint fk_bookingCalendar_booking references BOOKING,
+constraint pk_bookingCalendar primary key(room, bookingDate));
+
+CREATE TABLE TOCONSUME(
+room number(3),
+consumeDate date,
+service char(4) constraint fk_toconsume_service references service,
+amount number(2),
+constraint  fk_toconsume_bookingCalendar foreign key(room, consumeDate)  references BOOKINGCALENDAR,
+constraint pk_toconsume primary key(room, consumeDate, service));
+
+--already created in P4_View_Priviledges
+--CREATE TABLE EMPLOYEE(
+--nif char(9) constraint pk_employee primary key,
+--employeeName varchar2(40),
+--address varchar2(30),
+--town varchar2(30),
+--phone char(9),
+--studies  varchar2(50));
+
+
+CREATE TABLE ENTERTAINMENTEMP(
+nif char(9) constraint fk_entertainmentemp_employee references EMPLOYEE 
+constraint pk_entertainmentemp primary key);
+
+CREATE TABLE SERVICESEMP(
+nif char(9) constraint fk_serviceemp_employee references EMPLOYEE 
+constraint pk_serviceemp primary key);
+
+CREATE TABLE CLEANINGEMP(
+nif char(9) constraint fk_cleaningemp_employee references EMPLOYEE 
+constraint pk_cleaningemp primary key);
+
+CREATE TABLE RESTAURANTEMP(
+nif char(9) constraint fk_restaurantemp_employee references EMPLOYEE 
+constraint pk_restaurantemp primary key);
+
+CREATE TABLE RECEPTIONEMP(
+nif char(9) constraint fk_receptionemp_employee references employee 
+constraint pk_receptionemp primary key);
+
+--it must be controlled that the generalization of EMPLOYEE is total and disjoint.
+
+CREATE TABLE TRAVELAGENCY(
+cif char(9) constraint pk_travelagency primary key,
+agencyName varchar2(30),
+phone char(9));
+
+CREATE TABLE AGENCYBOOKING(
+booking number(6) constraint fk_agencybooking_booking references booking
+constraint pk_agencybooking primary key,
+agency char(9) constraint fk_agencybooking_agency references TRAVELAGENCY not null,
+receptionemp char(9) constraint fk_agencybooking_receptionemp  references RECEPTIONEMP not null);
+
+CREATE TABLE PHONEBOOKING(
+booking number(6) constraint fk_phonebooking_booking references booking 
+constraint pk_phonebooking primary key,
+receptionemp char(9) constraint fk_phonebooking_receptionemp references RECEPTIONEMP  not null);
+
+CREATE TABLE HOTELBOOKING(
+booking number(6)  constraint fk_hotelbooking_booking references booking
+ constraint pk_hotelbooking primary key,
+receptionemp char(9) constraint fk_hotelbooking_receptionemp references RECEPTIONEMP  not null);
+
+CREATE TABLE INTERNETBOOKING (
+booking number(6)  constraint fk_internetbooking_booking references booking
+constraint pk_internetbooking primary key,
+bookingReference number(6) not null);
+
+--table already created in P3 (create index session)
+--CREATE TABLE TREATMENT(
+--code char(5) constraint pk_treatment primary key,
+--comments varchar2(50),
+--price number(3) not null);
+
+CREATE TABLE TODO(
+treatment char(5) constraint fk_todo_treatment references TREATMENT,
+employee char(9) constraint fk_todo_employee references SERVICESEMP,
+constraint pk_todo primary key(treatment, employee));
+
+CREATE TABLE appointment(
+appointmentDate date,
+moment number(1) constraint ch_moment check(moment between 1 and 6),
+employee char(9),
+customer char(9) constraint fk_appoinment_customer references customer not null,
+treatment char(5)  not null,
+constraint pk_appoinment primary key(appointmentDate, moment, employee),
+constraint fk_appoinment_todo foreign key (treatment, employee) references TODO);
+
+-- to check that the service-employee does the service corresponding to the appointment, the foreing key references table TODO. 
+-- Following the transformation rules from EER to MR we would have 2 foreing keys: 1 to the employee table and 1 to the treatment table.
+
+
+---- The following tables are already created but we should also relate to the new ones
+
+ALTER TABLE CALENDAR
+add cleaningemp char(9) constraint fk_calendar_cleaningemp references CLEANINGEMP;
+
+ALTER TABLE ACTIVITY
+add entertainmentemp char(9) constraint fk_activity_entertainmentemp references ENTERTAINMENTEMP;
+
+
+
