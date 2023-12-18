@@ -1,0 +1,16 @@
+province ( codp varchar(2), name varchar(25) ) PK (codp) 
+locality ( codm varchar(4), town varchar(50), province varchar(2)) PK (codm,province) FK (province) —> province NNV (town) 
+uuser ( email varchar(50), name varchar(35), surnames varchar(55), dni varchar(12), telephone varchar(15), street varchar(45), street2 varchar(45), postcode varchar(5), town varchar(4), province varchar(2), birthday date) PK (email) AltK (dni) FK (town, province) —> locality NNV NNV (surnames) NNV (name) 
+deliveryaddress ( email varchar(50), street varchar(45), street2 varchar(45), postcode varchar(5), town varchar(4), province varchar(2)) PK (email) FK (town, province) —> locality NNV FK (email) —> uuser
+brand ( brand varchar(15), company varchar(60), logo blob ) PK (brand) 
+article ( cod varchar(7), name varchar(45), rrp decimal(7,2), brand varchar(15), image blob, urlimage varchar(100), specifications text) PK (cod) FK (brand) —> brand 
+camera ( cod varchar(7), resolution varchar(15), sensor varchar(45), type varchar(45), factor varchar(10), lens varchar(15), screen varchar(20), zoom varchar(40)) PK (cod) FK (cod) —> article 
+tv ( cod varchar(7), panel varchar(45), screen smallint(6), resolution varchar(15), hdreadyfullhd varchar(6), dtt tinyint(1) ) PK (cod) FK (cod) —> article 
+memory ( cod varchar(7), type varchar(30) ) PK (cod) FK (cod) —> article 
+lens ( cod varchar(7), type varchar(15), frame varchar(15), focal varchar(10), aperture varchar(10), specials varchar(35) ) PK (cod) FK (cod) —> article 
+pack ( cod varchar(7) ) PK (cod) FK (cod) —> article 
+part_of ( pack varchar(7), article varchar(7)) PK (pack,article) FK (article) —> article FK (pack) —> pack 
+stock ( article varchar(7), available int(11), delivery set( 'Unlisted', 'Shortly', '24 hours', '3/4 days', '1/2 weeks' ) ) PK (article) FK (article) —> article 
+basket ( article varchar(7), uuser varchar(50), ddate datetime ) PK (article,uuser) FK (article) —> article FK (uuser) —> user
+orrder ( numOrder int(11), uuser varchar(50), ddate datetime ) PK (numOrder) FK (uuser) —> uuser NNV NNV (date) 
+linorder ( numOrder int(11), line int(11), article varchar(7), price decimal(9,2), amount int(11) ) PK (line,numOrder) FK (article) —> article NNV FK (numOrder) —> orrder NNV (price)
